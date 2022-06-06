@@ -48,19 +48,23 @@ namespace TestApis.Controllers
         [HttpPut("{id}")]
         public ActionResult<Producto> ModificarProducto(int id,[FromBody] ProductoDTO producto)
         {
-            Producto productoExistente = this.context.productos.First(x => x.Id == id);
-            if (productoExistente == null)
+            if (ModelState.IsValid)
             {
-                return NotFound();
+                Producto productoExistente = this.context.productos.First(x => x.Id == id);
+                if (productoExistente == null)
+                {
+                    return NotFound();
+                }
+                productoExistente.Nombre = producto.Nombre;
+                productoExistente.Descripcion = producto.Descripcion;
+                productoExistente.SKU = producto.SKU;
+                productoExistente.Precio = producto.Precio;
+
+                this.context.productos.Update(productoExistente);
+                this.context.SaveChanges();
+                return productoExistente;
             }
-            productoExistente.Nombre = producto.Nombre;
-            productoExistente.Descripcion = producto.Descripcion;
-            productoExistente.SKU = producto.SKU;
-            productoExistente.Precio = producto.Precio;
-            
-            this.context.productos.Update(productoExistente);
-            this.context.SaveChanges();
-            return productoExistente;
+            return BadRequest();
         }
 
         [HttpDelete("{id}")]
